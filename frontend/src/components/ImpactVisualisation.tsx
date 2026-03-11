@@ -1,5 +1,7 @@
 import React from "react";
-import type { TooltipProps, ValueType, NameType } from "recharts";
+import type { TooltipProps } from "recharts";
+type ValueType = number | string;
+type NameType = string;
 
 import {
   ComposedChart,
@@ -26,7 +28,13 @@ const SCALE_POINTS = [1000, 10000, 25000, 50000, 75000, 100000];
 // -----------------------------------------
 // Custom Tooltip with proper TypeScript types
 // -----------------------------------------
-const CustomTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({ active, payload, label }) => {
+const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const { active, payload, label } = props as unknown as {
+    active?: boolean;
+    payload?: Array<{ dataKey: string; value: number }>;
+    label?: string | number;
+  };
+
   if (active && payload && payload.length) {
     const carbon = payload.find((p) => p.dataKey === "carbon")?.value as number;
     const revenue = payload.find((p) => p.dataKey === "revenue")?.value as number;
@@ -43,11 +51,16 @@ const CustomTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({ active, pa
         }}
       >
         <p>{`Runs: ${label}`}</p>
-        <p style={{ color: "#22c55e" }}>{`Carbon Saved: ${carbon.toLocaleString()} kg`}</p>
-        <p style={{ color: "#facc15" }}>{`Revenue Saved: ₹${revenue.toLocaleString()}`}</p>
+        <p style={{ color: "#22c55e" }}>
+          {`Carbon Saved: ${carbon.toLocaleString()} kg`}
+        </p>
+        <p style={{ color: "#facc15" }}>
+          {`Revenue Saved: ₹${revenue.toLocaleString()}`}
+        </p>
       </div>
     );
   }
+
   return null;
 };
 
